@@ -3,12 +3,20 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@chakra-ui/icons": "^1.0.14",
+    "@chakra-ui/react": "^1.6.5",
+    "@emotion/react": "^11",
+    "@emotion/styled": "^11",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
+    "abi-decoder": "^2.4.0",
+    "framer-motion": "^4",
+    "highlight.js": "^11.2.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "4.0.3",
+    "react-simple-code-editor": "^0.11.0",
     "web-vitals": "^1.0.1"
   },
   "scripts": {
