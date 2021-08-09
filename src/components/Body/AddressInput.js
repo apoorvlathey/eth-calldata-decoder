@@ -37,7 +37,9 @@ function AddressInput({
         onChange={(e) => setNetworkIndex(e.target.value)}
       >
         {networkInfo.map((network, i) => (
-          <option value={i}>{network.name}</option>
+          <option value={i} key={i}>
+            {network.name}
+          </option>
         ))}
       </Select>
       <Button

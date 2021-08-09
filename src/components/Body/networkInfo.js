@@ -1,4 +1,4 @@
-export default [
+const networkInfo = [
   {
     name: "Ethereum Mainnet",
     api: `https://api.etherscan.io/api?module=contract&action=getabi&apikey=${process.env.REACT_APP_ETHERSCAN_API_KEY}`,
@@ -27,3 +27,5 @@ export default [
     apikey: process.env.REACT_APP_ETHERSCAN_API_KEY,
   },
 ];
+
+export default networkInfo;

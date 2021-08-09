@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { VStack, FormControl, FormLabel, Button } from "@chakra-ui/react";
 import { UnlockIcon } from "@chakra-ui/icons";
 import JsonTextArea from "../common/JsonTextArea";

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { chakra, useColorMode, FormControl, FormLabel } from "@chakra-ui/react";
+import React from "react";
+import { FormControl, FormLabel } from "@chakra-ui/react";
 import JsonTextArea from "../common/JsonTextArea";
 
 function Output({ value }) {
