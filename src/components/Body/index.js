@@ -120,7 +120,7 @@ function Body() {
   }, [calldata, contractAddress, networkIndex]);
 
   return (
-    <Container my="16" minW="2xl">
+    <Container my="16" minW={["0", "0", "2xl", "2xl"]}>
       <FormControl>
         <FormLabel>Enter Calldata</FormLabel>
         <Textarea
