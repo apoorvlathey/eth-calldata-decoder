@@ -2,6 +2,7 @@ import React from "react";
 import {
   VStack,
   Input,
+  Select,
   FormControl,
   FormLabel,
   Button,
@@ -11,6 +12,8 @@ import { UnlockIcon } from "@chakra-ui/icons";
 function AddressInput({
   contractAddress,
   setContractAddress,
+  networkInfo,
+  setNetworkIndex,
   btnDisabled,
   decode,
   bg,
@@ -27,6 +30,16 @@ function AddressInput({
           bg={bg}
         />
       </FormControl>
+      <Select
+        placeholder="Select Network"
+        variant="filled"
+        _hover={{ cursor: "pointer" }}
+        onChange={(e) => setNetworkIndex(e.target.value)}
+      >
+        {networkInfo.map((network, i) => (
+          <option value={i}>{network.name}</option>
+        ))}
+      </Select>
       <Button
         onClick={decode}
         leftIcon={<UnlockIcon />}

@@ -19,6 +19,7 @@ import AddressInput from "./AddressInput";
 import Output from "./Output";
 import abiDecoder from "abi-decoder";
 import axios from "axios";
+import networkInfo from "./networkInfo";
 
 function Body() {
   const { colorMode } = useColorMode();
@@ -28,7 +29,7 @@ function Body() {
   const [tabIndex, setTabIndex] = useState(0);
   const [calldata, setCalldata] = useState("");
   const [contractAddress, setContractAddress] = useState("");
-  const [network, setNetwork] = useState("");
+  const [networkIndex, setNetworkIndex] = useState("");
   const [abi, setAbi] = useState("");
   const [output, setOutput] = useState("");
 
@@ -66,15 +67,11 @@ function Body() {
 
   const decodeWithAddress = async () => {
     // get ABI
-    const response = await axios.get(
-      "https://api.etherscan.io/api?module=contract&action=getabi",
-      {
-        params: {
-          address: contractAddress,
-          apikey: process.env.REACT_APP_ETHERSCAN_API_KEY,
-        },
-      }
-    );
+    const response = await axios.get(networkInfo[networkIndex].api, {
+      params: {
+        address: contractAddress,
+      },
+    });
 
     if (response.data.message === "OK") {
       const res_abi = response.data.result;
@@ -133,12 +130,12 @@ function Body() {
   }, [calldata, abi]);
 
   useEffect(() => {
-    if (calldata && contractAddress) {
+    if (calldata && contractAddress && networkIndex) {
       setDisableAddressDecodeBtn(false);
     } else {
       setDisableAddressDecodeBtn(true);
     }
-  }, [calldata, contractAddress]);
+  }, [calldata, contractAddress, networkIndex]);
 
   return (
     <Container mt="16" minW="2xl">
@@ -177,6 +174,8 @@ function Body() {
             <AddressInput
               contractAddress={contractAddress}
               setContractAddress={setContractAddress}
+              networkInfo={networkInfo}
+              setNetworkIndex={setNetworkIndex}
               btnDisabled={disableAddressDecodeBtn}
               decode={decodeWithAddress}
               bg={bgColor[colorMode]}
