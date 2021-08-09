@@ -1,5 +1,5 @@
 import React from "react";
-import { chakra, useColorMode } from "@chakra-ui/react";
+import { chakra, Box, useColorMode } from "@chakra-ui/react";
 import SimpleEditor from "react-simple-code-editor";
 
 import "../../styles/scroll.css";
@@ -23,28 +23,29 @@ function JsonTextArea({
   const borderColor = { light: "gray.500", dark: "gray.400" };
 
   return (
-    <ChakraSimpleEditor
-      placeholder={placeholder}
-      aria-label={ariaLabel}
-      value={value}
-      onValueChange={setValue}
-      readOnly={readOnly}
-      bg={bg}
+    <Box
       h="60"
-      style={{
-        overflowY: "scroll",
-      }}
+      overflowY="scroll"
       className="scroll"
-      highlight={(contents) =>
-        hljs.highlight(contents, { language: "json" }).value
-      }
+      bg={bg}
       border="1px"
       borderColor={borderColor[colorMode]}
       roundedLeft="md"
       roundedRight="4px"
-      fontFamily={"SFMono-Regular,Menlo,Monaco,Consolas,monospace"}
       resize={canResize ? "both" : "none"}
-    />
+    >
+      <ChakraSimpleEditor
+        placeholder={placeholder}
+        aria-label={ariaLabel}
+        value={value}
+        onValueChange={setValue}
+        readOnly={readOnly}
+        highlight={(contents) =>
+          hljs.highlight(contents, { language: "json" }).value
+        }
+        fontFamily={"SFMono-Regular,Menlo,Monaco,Consolas,monospace"}
+      />
+    </Box>
   );
 }
 
