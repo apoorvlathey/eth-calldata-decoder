@@ -37,10 +37,18 @@ function Body() {
   const [disableAddressDecodeBtn, setDisableAddressDecodeBtn] = useState(true);
 
   const decodeWithABI = () => {
-    abiDecoder.addABI(JSON.parse(abi));
+    _decodeWithABI(abi, calldata);
+  };
+
+  const _decodeWithABI = (_abi, _calldata) => {
+    abiDecoder.addABI(JSON.parse(_abi));
     let decoded;
     try {
-      decoded = JSON.stringify(abiDecoder.decodeMethod(calldata), undefined, 2);
+      decoded = JSON.stringify(
+        abiDecoder.decodeMethod(_calldata),
+        undefined,
+        2
+      );
     } catch {
       toast({
         title: "Incorrect Calldata",
@@ -82,36 +90,8 @@ function Body() {
         isClosable: true,
       });
       setTabIndex(0);
-      abiDecoder.addABI(JSON.parse(res_abi));
-      let decoded;
-      try {
-        decoded = JSON.stringify(
-          abiDecoder.decodeMethod(calldata),
-          undefined,
-          2
-        );
-      } catch {
-        toast({
-          title: "Incorrect Calldata",
-          status: "error",
-          isClosable: true,
-        });
-        return;
-      }
-      if (decoded) {
-        setOutput(decoded);
-        toast({
-          title: "Successfully Decoded",
-          status: "success",
-          isClosable: true,
-        });
-      } else {
-        toast({
-          title: "Can't Decode Calldata",
-          status: "error",
-          isClosable: true,
-        });
-      }
+
+      _decodeWithABI(res_abi, calldata);
     } else {
       toast({
         title: "ABI Not found",
