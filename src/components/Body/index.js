@@ -26,11 +26,13 @@ function Body() {
   const bgColor = { light: "white", dark: "gray.700" };
   const toast = useToast();
 
+  const defaultABIPlaceholder = " \n \n \n \n \n \n \n \n \n ";
+
   const [tabIndex, setTabIndex] = useState(0);
   const [calldata, setCalldata] = useState("");
   const [contractAddress, setContractAddress] = useState("");
   const [networkIndex, setNetworkIndex] = useState("");
-  const [abi, setAbi] = useState("");
+  const [abi, setAbi] = useState(defaultABIPlaceholder);
   const [output, setOutput] = useState("");
 
   const [disableABIDecodeBtn, setDisableABIDecodeBtn] = useState(true);
@@ -102,7 +104,7 @@ function Body() {
   };
 
   useEffect(() => {
-    if (calldata && abi) {
+    if (calldata && abi && abi !== defaultABIPlaceholder) {
       setDisableABIDecodeBtn(false);
     } else {
       setDisableABIDecodeBtn(true);
