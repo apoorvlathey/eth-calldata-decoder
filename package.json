@@ -11,6 +11,7 @@
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
     "abi-decoder": "^2.4.0",
+    "axios": "^0.21.1",
     "framer-motion": "^4",
     "highlight.js": "^11.2.0",
     "react": "^17.0.2",

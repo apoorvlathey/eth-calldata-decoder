@@ -12,6 +12,7 @@ function AddressInput({
   contractAddress,
   setContractAddress,
   btnDisabled,
+  decode,
   bg,
 }) {
   return (
@@ -27,6 +28,7 @@ function AddressInput({
         />
       </FormControl>
       <Button
+        onClick={decode}
         leftIcon={<UnlockIcon />}
         style={{ marginTop: "20px" }}
         colorScheme="blue"

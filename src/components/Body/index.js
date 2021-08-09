@@ -12,15 +12,18 @@ import {
   FormLabel,
   Divider,
   Box,
+  useToast,
 } from "@chakra-ui/react";
 import ABIInput from "./ABIInput";
 import AddressInput from "./AddressInput";
 import Output from "./Output";
 import abiDecoder from "abi-decoder";
+import axios from "axios";
 
 function Body() {
   const { colorMode } = useColorMode();
   const bgColor = { light: "white", dark: "gray.700" };
+  const toast = useToast();
 
   const [calldata, setCalldata] = useState("");
   const [contractAddress, setContractAddress] = useState("");
@@ -30,9 +33,66 @@ function Body() {
   const [disableABIDecodeBtn, setDisableABIDecodeBtn] = useState(true);
   const [disableAddressDecodeBtn, setDisableAddressDecodeBtn] = useState(true);
 
-  const decode = () => {
+  const decodeWithABI = () => {
     abiDecoder.addABI(JSON.parse(abi));
-    setOutput(JSON.stringify(abiDecoder.decodeMethod(calldata), undefined, 2));
+    const decoded = JSON.stringify(
+      abiDecoder.decodeMethod(calldata),
+      undefined,
+      2
+    );
+    if (decoded) {
+      setOutput(decoded);
+    } else {
+      toast({
+        title: "Can't Decode Calldata",
+        status: "error",
+        isClosable: true,
+      });
+    }
+  };
+
+  const decodeWithAddress = async () => {
+    // get ABI
+    const response = await axios.get(
+      "https://api.etherscan.io/api?module=contract&action=getabi",
+      {
+        params: {
+          address: contractAddress,
+          apikey: process.env.REACT_APP_ETHERSCAN_API_KEY,
+        },
+      }
+    );
+
+    if (response.data.message === "OK") {
+      const res_abi = response.data.result;
+      setAbi(JSON.stringify(JSON.parse(res_abi), undefined, 2));
+      toast({
+        title: "ABI Fetched from Address",
+        status: "success",
+        isClosable: true,
+      });
+      abiDecoder.addABI(JSON.parse(res_abi));
+      const decoded = JSON.stringify(
+        abiDecoder.decodeMethod(calldata),
+        undefined,
+        2
+      );
+      if (decoded) {
+        setOutput(decoded);
+      } else {
+        toast({
+          title: "Can't Decode Calldata",
+          status: "error",
+          isClosable: true,
+        });
+      }
+    } else {
+      toast({
+        title: "ABI Not found",
+        status: "error",
+        isClosable: true,
+      });
+    }
   };
 
   useEffect(() => {
@@ -52,7 +112,7 @@ function Body() {
   }, [calldata, contractAddress]);
 
   return (
-    <Container mt="16">
+    <Container mt="16" minW="2xl">
       <FormControl>
         <FormLabel>Enter Calldata</FormLabel>
         <Textarea
@@ -74,7 +134,7 @@ function Body() {
               abi={abi}
               setAbi={setAbi}
               btnDisabled={disableABIDecodeBtn}
-              decode={decode}
+              decode={decodeWithABI}
               bg={bgColor[colorMode]}
             />
           </TabPanel>
@@ -83,13 +143,14 @@ function Body() {
               contractAddress={contractAddress}
               setContractAddress={setContractAddress}
               btnDisabled={disableAddressDecodeBtn}
+              decode={decodeWithAddress}
               bg={bgColor[colorMode]}
             />
           </TabPanel>
         </TabPanels>
       </Tabs>
       <Divider />
-      <Box mt="4">
+      <Box mt="4" mb="40">
         <Output value={output} />
       </Box>
     </Container>

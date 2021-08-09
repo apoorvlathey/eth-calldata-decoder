@@ -6,7 +6,12 @@ function Output({ value }) {
   return (
     <FormControl>
       <FormLabel>Output:</FormLabel>
-      <JsonTextArea value={value} readOnly={true} ariaLabel="output" />
+      <JsonTextArea
+        value={value}
+        readOnly={true}
+        ariaLabel="output"
+        canResize={true}
+      />
     </FormControl>
   );
 }

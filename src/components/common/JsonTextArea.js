@@ -17,6 +17,7 @@ function JsonTextArea({
   placeholder,
   ariaLabel,
   readOnly,
+  canResize,
 }) {
   const { colorMode } = useColorMode();
   const borderColor = { light: "gray.500", dark: "gray.400" };
@@ -42,6 +43,7 @@ function JsonTextArea({
       roundedLeft="md"
       roundedRight="4px"
       fontFamily={"SFMono-Regular,Menlo,Monaco,Consolas,monospace"}
+      resize={canResize ? "both" : "none"}
     />
   );
 }
