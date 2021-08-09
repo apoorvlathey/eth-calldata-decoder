@@ -25,8 +25,10 @@ function Body() {
   const bgColor = { light: "white", dark: "gray.700" };
   const toast = useToast();
 
+  const [tabIndex, setTabIndex] = useState(0);
   const [calldata, setCalldata] = useState("");
   const [contractAddress, setContractAddress] = useState("");
+  const [network, setNetwork] = useState("");
   const [abi, setAbi] = useState("");
   const [output, setOutput] = useState("");
 
@@ -35,13 +37,24 @@ function Body() {
 
   const decodeWithABI = () => {
     abiDecoder.addABI(JSON.parse(abi));
-    const decoded = JSON.stringify(
-      abiDecoder.decodeMethod(calldata),
-      undefined,
-      2
-    );
+    let decoded;
+    try {
+      decoded = JSON.stringify(abiDecoder.decodeMethod(calldata), undefined, 2);
+    } catch {
+      toast({
+        title: "Incorrect Calldata",
+        status: "error",
+        isClosable: true,
+      });
+      return;
+    }
     if (decoded) {
       setOutput(decoded);
+      toast({
+        title: "Successfully Decoded",
+        status: "success",
+        isClosable: true,
+      });
     } else {
       toast({
         title: "Can't Decode Calldata",
@@ -71,14 +84,30 @@ function Body() {
         status: "success",
         isClosable: true,
       });
+      setTabIndex(0);
       abiDecoder.addABI(JSON.parse(res_abi));
-      const decoded = JSON.stringify(
-        abiDecoder.decodeMethod(calldata),
-        undefined,
-        2
-      );
+      let decoded;
+      try {
+        decoded = JSON.stringify(
+          abiDecoder.decodeMethod(calldata),
+          undefined,
+          2
+        );
+      } catch {
+        toast({
+          title: "Incorrect Calldata",
+          status: "error",
+          isClosable: true,
+        });
+        return;
+      }
       if (decoded) {
         setOutput(decoded);
+        toast({
+          title: "Successfully Decoded",
+          status: "success",
+          isClosable: true,
+        });
       } else {
         toast({
           title: "Can't Decode Calldata",
@@ -123,7 +152,13 @@ function Body() {
           bg={bgColor[colorMode]}
         />
       </FormControl>
-      <Tabs mt="6" variant="enclosed" isFitted>
+      <Tabs
+        mt="6"
+        variant="enclosed"
+        index={tabIndex}
+        onChange={setTabIndex}
+        isFitted
+      >
         <TabList>
           <Tab>Input ABI</Tab>
           <Tab>Enter Address</Tab>
