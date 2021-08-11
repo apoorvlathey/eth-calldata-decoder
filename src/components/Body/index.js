@@ -14,6 +14,7 @@ import {
   Box,
   useToast,
 } from "@chakra-ui/react";
+import { toChecksumAddress } from "ethereum-checksum-address";
 import ABIInput from "./ABIInput";
 import AddressInput from "./AddressInput";
 import Output from "./Output";
@@ -56,6 +57,7 @@ function Body() {
         title: "Incorrect Calldata",
         status: "error",
         isClosable: true,
+        duration: 2000,
       });
       return;
     }
@@ -65,42 +67,59 @@ function Body() {
         title: "Successfully Decoded",
         status: "success",
         isClosable: true,
+        duration: 1000,
       });
     } else {
       toast({
         title: "Can't Decode Calldata",
         status: "error",
         isClosable: true,
+        duration: 1000,
       });
     }
   };
 
   const decodeWithAddress = async () => {
     // get ABI
-    const response = await axios.get(networkInfo[networkIndex].api, {
-      params: {
-        address: contractAddress,
-      },
-    });
-
-    if (response.data.message === "OK") {
-      const res_abi = response.data.result;
-      setAbi(JSON.stringify(JSON.parse(res_abi), undefined, 2));
-      toast({
-        title: "ABI Fetched from Address",
-        status: "success",
-        isClosable: true,
+    let fetched_abi;
+    // from Sourcify
+    try {
+      const response = await axios.get(
+        `https://repo.sourcify.dev/contracts/full_match/${
+          networkInfo[networkIndex].chainID
+        }/${toChecksumAddress(contractAddress)}/metadata.json`
+      );
+      fetched_abi = JSON.stringify(response.data.output.abi);
+    } catch {
+      // from Etherscan API
+      const response = await axios.get(networkInfo[networkIndex].api, {
+        params: {
+          address: contractAddress,
+        },
       });
-      setTabIndex(0);
 
-      _decodeWithABI(res_abi, calldata);
-    } else {
-      toast({
-        title: "ABI Not found",
-        status: "error",
-        isClosable: true,
-      });
+      if (response.data.message === "OK") {
+        fetched_abi = response.data.result;
+      } else {
+        toast({
+          title: "ABI Not found",
+          status: "error",
+          isClosable: true,
+          duration: 2000,
+        });
+      }
     }
+
+    setAbi(JSON.stringify(JSON.parse(fetched_abi), undefined, 2));
+    toast({
+      title: "ABI Fetched from Address",
+      status: "success",
+      isClosable: true,
+      duration: 1000,
+    });
+    setTabIndex(0);
+
+    _decodeWithABI(fetched_abi, calldata);
   };
 
   useEffect(() => {
