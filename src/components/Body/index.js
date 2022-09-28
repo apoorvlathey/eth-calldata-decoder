@@ -138,36 +138,88 @@ function Body() {
     );
   };
 
+  const _getAllPossibleDecoded = (functionsArr) => {
+    let allPossibleDecoded = [];
+    for (var i = 0; i < functionsArr.length; i++) {
+      const fn = functionsArr[i];
+      const _abi = [`function ${fn}`];
+
+      const iface = new utils.Interface(_abi);
+      try {
+        let { args } = iface.parseTransaction({ data: calldata });
+        allPossibleDecoded.push({
+          function: fn,
+          params: recursiveBNToString(args),
+        });
+      } catch {
+        continue;
+      }
+    }
+    return allPossibleDecoded;
+  };
+
   const decodeWithSelector = async () => {
-    // from 4byte.directory
+    // from sig.eth.samczsun.com
     const selector = calldata.slice(0, 10);
     const response = await axios.get(
-      "https://www.4byte.directory/api/v1/signatures/",
+      "https://sig.eth.samczsun.com/api/v1/signatures",
       {
         params: {
-          hex_signature: selector,
+          function: selector,
         },
       }
     );
-    const results = response.data.results;
+    const results = response.data.result.function[selector].map((f) => f.name);
     if (results.length > 0) {
-      // 4byte can have multiple entries with the same selector
+      // can have multiple entries with the same selector
+      const allPossibleDecoded = _getAllPossibleDecoded(results);
 
-      let allPossibleDecoded = [];
-      for (var i = 0; i < results.length; i++) {
-        const fn = results[i].text_signature;
-        const _abi = [`function ${fn}`];
-
-        const iface = new utils.Interface(_abi);
-        try {
-          let { args } = iface.parseTransaction({ data: calldata });
-          allPossibleDecoded.push({
-            function: fn,
-            params: recursiveBNToString(args),
-          });
-        } catch {
-          continue;
+      if (allPossibleDecoded.length > 0) {
+        const decoded = JSON.stringify(
+          {
+            allPossibilities: allPossibleDecoded,
+          },
+          undefined,
+          2
+        );
+        setOutput(decoded);
+        toast({
+          title: "Successfully Decoded",
+          status: "success",
+          isClosable: true,
+          duration: 1000,
+        });
+      } else {
+        setOutput(
+          JSON.stringify(
+            {
+              possibleFunctions: results,
+            },
+            undefined,
+            2
+          )
+        );
+        toast({
+          title: "Can't Decode Calldata",
+          status: "error",
+          isClosable: true,
+          duration: 4000,
+        });
+      }
+    } else {
+      // from 4byte.directory
+      const response = await axios.get(
+        "https://www.4byte.directory/api/v1/signatures/",
+        {
+          params: {
+            hex_signature: selector,
+          },
         }
+      );
+      const results = response.data.results.map((f) => f.text_signature);
+      if (results.length > 0) {
+        // can have multiple entries with the same selector
+        const allPossibleDecoded = _getAllPossibleDecoded(results);
 
         if (allPossibleDecoded.length > 0) {
           const decoded = JSON.stringify(
@@ -185,21 +237,30 @@ function Body() {
             duration: 1000,
           });
         } else {
+          setOutput(
+            JSON.stringify(
+              {
+                possibleFunctions: results,
+              },
+              undefined,
+              2
+            )
+          );
           toast({
             title: "Can't Decode Calldata",
             status: "error",
             isClosable: true,
-            duration: 1000,
+            duration: 4000,
           });
         }
+      } else {
+        toast({
+          title: "Can't Decode Calldata",
+          status: "error",
+          isClosable: true,
+          duration: 1000,
+        });
       }
-    } else {
-      toast({
-        title: "Can't Decode Calldata",
-        status: "error",
-        isClosable: true,
-        duration: 1000,
-      });
     }
   };
 
@@ -247,7 +308,8 @@ function Body() {
           <TabPanel>
             <Text>
               <b>Note:</b> There might be multiple functions possible for the
-              same 4byte signature. Showing all possiblities below on Decode
+              same 4byte signature. Showing the most relevant possiblities below
+              on decoding.
             </Text>
             <Center>
               <Button
