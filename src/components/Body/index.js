@@ -13,8 +13,13 @@ import {
   Divider,
   Box,
   useToast,
+  Button,
+  Center,
+  Text,
 } from "@chakra-ui/react";
+import { UnlockIcon } from "@chakra-ui/icons";
 import { toChecksumAddress } from "ethereum-checksum-address";
+import { utils, BigNumber } from "ethers";
 import ABIInput from "./ABIInput";
 import AddressInput from "./AddressInput";
 import Output from "./Output";
@@ -29,7 +34,7 @@ function Body() {
 
   const defaultABIPlaceholder = " \n \n \n \n \n \n \n \n \n ";
 
-  const [tabIndex, setTabIndex] = useState(0);
+  const [tabIndex, setTabIndex] = useState(1);
   const [calldata, setCalldata] = useState("");
   const [contractAddress, setContractAddress] = useState("");
   const [networkIndex, setNetworkIndex] = useState("");
@@ -122,6 +127,75 @@ function Body() {
     _decodeWithABI(fetched_abi, calldata);
   };
 
+  const recursiveBNToString = (args) => {
+    return args.map((arg) =>
+      BigNumber.isBigNumber(arg)
+        ? arg.toString()
+        : // if arg is a struct in solidity
+        arg.constructor === Array
+        ? recursiveBNToString(arg)
+        : arg
+    );
+  };
+
+  const decodeWithSelector = async () => {
+    // from 4byte.directory
+    const selector = calldata.slice(0, 10);
+    const response = await axios.get(
+      "https://www.4byte.directory/api/v1/signatures/",
+      {
+        params: {
+          hex_signature: selector,
+        },
+      }
+    );
+    const results = response.data.results;
+    if (results.length > 0) {
+      // 4byte can have multiple entries with the same selector
+
+      let allPossibleDecoded = [];
+      for (var i = 0; i < results.length; i++) {
+        const fn = results[i].text_signature;
+        const _abi = [`function ${fn}`];
+
+        const iface = new utils.Interface(_abi);
+        try {
+          let { args } = iface.parseTransaction({ data: calldata });
+          allPossibleDecoded.push({
+            function: fn,
+            params: recursiveBNToString(args),
+          });
+        } catch {
+          continue;
+        }
+
+        if (allPossibleDecoded.length > 0) {
+          const decoded = JSON.stringify(
+            {
+              allPossibilities: allPossibleDecoded,
+            },
+            undefined,
+            2
+          );
+          setOutput(decoded);
+          toast({
+            title: "Successfully Decoded",
+            status: "success",
+            isClosable: true,
+            duration: 1000,
+          });
+        } else {
+          toast({
+            title: "Can't Decode Calldata",
+            status: "error",
+            isClosable: true,
+            duration: 1000,
+          });
+        }
+      }
+    }
+  };
+
   useEffect(() => {
     if (calldata && abi && abi !== defaultABIPlaceholder) {
       setDisableABIDecodeBtn(false);
@@ -158,10 +232,28 @@ function Body() {
         isFitted
       >
         <TabList>
+          <Tab>No ABI</Tab>
           <Tab>Input ABI</Tab>
           <Tab>Enter Address</Tab>
         </TabList>
         <TabPanels mt="3">
+          <TabPanel>
+            <Text>
+              <b>Note:</b> There might be multiple functions possible for the
+              same 4byte signature. Showing all possiblities below on Decode
+            </Text>
+            <Center>
+              <Button
+                onClick={decodeWithSelector}
+                leftIcon={<UnlockIcon />}
+                style={{ marginTop: "20px" }}
+                colorScheme="blue"
+                disabled={!calldata}
+              >
+                Decode
+              </Button>
+            </Center>
+          </TabPanel>
           <TabPanel>
             <ABIInput
               abi={abi}
