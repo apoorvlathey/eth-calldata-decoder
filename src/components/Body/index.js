@@ -193,6 +193,13 @@ function Body() {
           });
         }
       }
+    } else {
+      toast({
+        title: "Can't Decode Calldata",
+        status: "error",
+        isClosable: true,
+        duration: 1000,
+      });
     }
   };
 
