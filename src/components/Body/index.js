@@ -122,7 +122,7 @@ function Body() {
       isClosable: true,
       duration: 1000,
     });
-    setTabIndex(0);
+    setTabIndex(1);
 
     _decodeWithABI(fetched_abi, calldata);
   };
