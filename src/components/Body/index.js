@@ -34,7 +34,7 @@ function Body() {
 
   const defaultABIPlaceholder = " \n \n \n \n \n \n \n \n \n ";
 
-  const [tabIndex, setTabIndex] = useState(1);
+  const [tabIndex, setTabIndex] = useState(0);
   const [calldata, setCalldata] = useState("");
   const [contractAddress, setContractAddress] = useState("");
   const [networkIndex, setNetworkIndex] = useState("");
