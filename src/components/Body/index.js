@@ -288,7 +288,7 @@ function Body() {
           placeholder="Calldata"
           aria-label="Calldata"
           value={calldata}
-          onChange={(e) => setCalldata(e.target.value)}
+          onChange={(e) => setCalldata(e.target.value.trim())}
           bg={bgColor[colorMode]}
         />
       </FormControl>
