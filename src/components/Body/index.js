@@ -159,10 +159,10 @@ function Body() {
   };
 
   const decodeWithSelector = async () => {
-    // from sig.eth.samczsun.com
+    // from api.openchain.xyz
     const selector = calldata.slice(0, 10);
     const response = await axios.get(
-      "https://sig.eth.samczsun.com/api/v1/signatures",
+      "https://api.openchain.xyz/signature-database/v1/lookup",
       {
         params: {
           function: selector,
