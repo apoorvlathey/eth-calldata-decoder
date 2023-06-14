@@ -34,10 +34,29 @@ function Body() {
 
   const defaultABIPlaceholder = " \n \n \n \n \n \n \n \n \n ";
 
+  const calldataFromURL = new URLSearchParams(window.location.search).get(
+    "calldata"
+  );
+  const addressFromURL = new URLSearchParams(window.location.search).get(
+    "address"
+  );
+  const chainIdFromURL = new URLSearchParams(window.location.search).get(
+    "chainId"
+  );
+  let networkIndexFromURL;
+  if (chainIdFromURL) {
+    for (var i = 0; i < networkInfo.length; i++) {
+      if (networkInfo[i].chainID === parseInt(chainIdFromURL)) {
+        networkIndexFromURL = i;
+        break;
+      }
+    }
+  }
+
   const [tabIndex, setTabIndex] = useState(0);
-  const [calldata, setCalldata] = useState("");
-  const [contractAddress, setContractAddress] = useState("");
-  const [networkIndex, setNetworkIndex] = useState("");
+  const [calldata, setCalldata] = useState(calldataFromURL ?? "");
+  const [contractAddress, setContractAddress] = useState(addressFromURL ?? "");
+  const [networkIndex, setNetworkIndex] = useState(networkIndexFromURL ?? 0);
   const [abi, setAbi] = useState(defaultABIPlaceholder);
   const [output, setOutput] = useState("");
 
@@ -265,6 +284,15 @@ function Body() {
   };
 
   useEffect(() => {
+    if (calldataFromURL && addressFromURL) {
+      setTabIndex(2);
+      decodeWithAddress();
+    } else if (calldataFromURL) {
+      decodeWithSelector();
+    }
+  }, [calldataFromURL]);
+
+  useEffect(() => {
     if (calldata && abi && abi !== defaultABIPlaceholder) {
       setDisableABIDecodeBtn(false);
     } else {
@@ -337,6 +365,7 @@ function Body() {
               contractAddress={contractAddress}
               setContractAddress={setContractAddress}
               networkInfo={networkInfo}
+              networkIndex={networkIndex}
               setNetworkIndex={setNetworkIndex}
               btnDisabled={disableAddressDecodeBtn}
               decode={decodeWithAddress}

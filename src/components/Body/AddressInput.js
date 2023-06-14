@@ -13,6 +13,7 @@ function AddressInput({
   contractAddress,
   setContractAddress,
   networkInfo,
+  networkIndex,
   setNetworkIndex,
   btnDisabled,
   decode,
@@ -34,6 +35,7 @@ function AddressInput({
         placeholder="Select Network"
         variant="filled"
         _hover={{ cursor: "pointer" }}
+        value={networkIndex}
         onChange={(e) => setNetworkIndex(e.target.value)}
       >
         {networkInfo.map((network, i) => (
